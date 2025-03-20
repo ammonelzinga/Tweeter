@@ -1,6 +1,5 @@
 import { User, AuthToken } from "tweeter-shared";
 import { UserService } from "../modelANDservice/service/UserService";
-import useUserInfo from "../userInfo/UserInfoHook";
 import { Buffer } from "buffer";
 
 
@@ -13,21 +12,24 @@ export interface RegisterView{
         authToken: AuthToken,
         remember: boolean
       ) => void, 
-      navigate: (location: string) => void, 
-      setImageUrl: (value: React.SetStateAction<string>) => void, 
-      setImageBytes: (value: React.SetStateAction<Uint8Array<ArrayBufferLike>>) => void, 
-      setImageFileExtension: (value: React.SetStateAction<string>) => void
+      navigate: (location: string) => void,
+      setImageUrl: (url: string) => void
 }
 
 export class RegisterPresenter{
     private _view: RegisterView;
     private userService: UserService;
     private _isLoading = false;
+    private _userImageBytes = new Uint8Array();
+    private _imageFileExtension = "";
 
     public constructor(view: RegisterView){
         this._view = view;
         this.userService = new UserService();
 
+    }
+    public get userImageBytes(){
+      return this._userImageBytes;
     }
     public get view(){
         return this._view;
@@ -39,14 +41,15 @@ export class RegisterPresenter{
     public set isLoading(value: boolean){
         this._isLoading = value;
     }
-    //const { updateUserInfo } = useUserInfo();
+    public get imageFileExtension(){
+      return this._imageFileExtension;
+    }
+
     public async doRegister (
         firstName: string,
         lastName: string,
         alias: string,
         password: string,
-        userImageBytes: Uint8Array,
-        imageFileExtension: string, 
         rememberMe: boolean){
         
         
@@ -58,8 +61,8 @@ export class RegisterPresenter{
             lastName,
             alias,
             password,
-            userImageBytes,
-            imageFileExtension
+            this._userImageBytes,
+            this.imageFileExtension
           );
     
           this._view.updateUserInfo(user, user, authToken, rememberMe);
@@ -76,7 +79,7 @@ export class RegisterPresenter{
 
       public handleImageFile (file: File | undefined) {
           if (file) {
-            this._view.setImageUrl(URL.createObjectURL(file));
+            this.view.setImageUrl(URL.createObjectURL(file));
       
             const reader = new FileReader();
             reader.onload = (event: ProgressEvent<FileReader>) => {
@@ -86,23 +89,23 @@ export class RegisterPresenter{
               const imageStringBase64BufferContents =
                 imageStringBase64.split("base64,")[1];
       
-              const bytes: Uint8Array = Buffer.from(
+              const bytes: Uint8Array<ArrayBuffer> = Buffer.from(
                 imageStringBase64BufferContents,
                 "base64"
               );
       
-              this._view.setImageBytes(bytes);
+              this._userImageBytes = bytes;
             };
             reader.readAsDataURL(file);
       
             // Set image file extension (and move to a separate method)
             const fileExtension = this.getFileExtension(file);
             if (fileExtension) {
-              this._view.setImageFileExtension(fileExtension);
+              this._imageFileExtension = (fileExtension);
             }
           } else {
-            this._view.setImageUrl("");
-            this._view.setImageBytes(new Uint8Array());
+            this.view.setImageUrl("");
+            this._userImageBytes = (new Uint8Array());
           }
         };
       

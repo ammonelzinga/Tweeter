@@ -3,8 +3,6 @@ import "bootstrap/dist/css/bootstrap.css";
 import { ChangeEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthenticationFormLayout from "../AuthenticationFormLayout";
-import { AuthToken, FakeData, User } from "tweeter-shared";
-import { Buffer } from "buffer";
 import useToastListener from "../../toaster/ToastListenerHook";
 import AuthenticationFields from "../AuthenticationFields";
 import useUserInfo from "../../userInfo/UserInfoHook";
@@ -15,11 +13,8 @@ const Register = () => {
   const [lastName, setLastName] = useState("");
   const [alias, setAlias] = useState("");
   const [password, setPassword] = useState("");
-  const [imageBytes, setImageBytes] = useState<Uint8Array>(new Uint8Array());
-  const [imageUrl, setImageUrl] = useState<string>("");
-  const [imageFileExtension, setImageFileExtension] = useState<string>("");
   const [rememberMe, setRememberMe] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const[imageUrl, setImageUrl] = useState("");
 
   const navigate = useNavigate();
   const { updateUserInfo } = useUserInfo();
@@ -32,7 +27,7 @@ const Register = () => {
       !alias ||
       !password ||
       !imageUrl ||
-      !imageFileExtension
+      !presenter.imageFileExtension
     );
   };
 
@@ -54,10 +49,8 @@ const Register = () => {
   const listener: RegisterView = {
     displayErrorMessage: displayErrorMessage, 
     updateUserInfo: updateUserInfo,
-    navigate: navigate, 
-    setImageUrl: setImageUrl,
-    setImageBytes: setImageBytes,
-    setImageFileExtension: setImageFileExtension
+    navigate: navigate,
+    setImageUrl: (imageUrl: string) => setImageUrl(imageUrl)
   }
 
   const [presenter] = useState(new RegisterPresenter(listener));
@@ -68,8 +61,6 @@ const Register = () => {
         lastName,
         alias,
         password,
-        imageBytes,
-        imageFileExtension,
         rememberMe)
   };
 

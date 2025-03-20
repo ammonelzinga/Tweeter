@@ -1,6 +1,7 @@
 import { User, AuthToken } from "tweeter-shared";
 import { UserService } from "../modelANDservice/service/UserService";
 import { To, NavigateOptions } from "react-router-dom";
+import useUserInfo from "../userInfo/UserInfoHook";
 
 export interface LoginView{
     updateUserInfo: (currentUser: User, displayedUser: User | null, authToken: AuthToken, remember: boolean) => void, 
