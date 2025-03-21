@@ -15,6 +15,7 @@ const Login = (props: Props) => {
   const [alias, setAlias] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const[isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
   const { updateUserInfo } = useUserInfo();
@@ -39,7 +40,9 @@ const Login = (props: Props) => {
   const [presenter] = useState(new LoginPresenter(listener));
 
   const doLogin = async () => {
+    setIsLoading(true);
     presenter.doLogin(alias, password, rememberMe, props.originalUrl);
+    setIsLoading(false);
   };
 
   const inputFieldGenerator = () => {
@@ -72,7 +75,7 @@ const Login = (props: Props) => {
       switchAuthenticationMethodGenerator={switchAuthenticationMethodGenerator}
       setRememberMe={setRememberMe}
       submitButtonDisabled={checkSubmitButtonStatus}
-      isLoading={presenter.isLoading}
+      isLoading={isLoading}
       submit={doLogin}
     />
   );

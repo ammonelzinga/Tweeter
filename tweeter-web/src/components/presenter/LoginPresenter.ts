@@ -1,54 +1,37 @@
 import { User, AuthToken } from "tweeter-shared";
 import { UserService } from "../modelANDservice/service/UserService";
-import { To, NavigateOptions } from "react-router-dom";
-import useUserInfo from "../userInfo/UserInfoHook";
+import { Presenter, View } from "./Presenter";
 
-export interface LoginView{
+export interface LoginView extends View{
     updateUserInfo: (currentUser: User, displayedUser: User | null, authToken: AuthToken, remember: boolean) => void, 
-    navigate: (to: To, options?: NavigateOptions) => void, 
+    navigate: (to: string) => void, 
     displayErrorMessage: (message: string) => void
 }
 
-export class LoginPresenter{
-    private _isLoading = false;
-    private _view: LoginView;
+export class LoginPresenter extends Presenter<LoginView>{
     private userService: UserService;
+
     public constructor(view: LoginView){
-        this._view = view;
+        super(view);
         this.userService = new UserService;
     }
+
     public get view(){
-        return this._view;
+        return super.view as LoginView;
     }
+
     public set view(value: LoginView){
-        this._view = value;
-    }
-    public get isLoading(){
-        return this._isLoading;
-    }
-    public set isLoading(value: boolean){
-        this._isLoading = value;
+        this.view = value;
     }
 
     public async doLogin (alias: string, password: string, rememberMe: boolean, originalUrl?: string) {
-        try {
-          this.isLoading = (true);
-    
+        this.doFailureReportingOperation(async () => {
           const [user, authToken] = await this.userService.login(alias, password);
-    
-          this._view.updateUserInfo(user, user, authToken, rememberMe);
-    
+          this.view.updateUserInfo(user, user, authToken, rememberMe);
           if (!!originalUrl) {
-            this._view.navigate(originalUrl);
+            this.view.navigate(originalUrl);
           } else {
-            this._view.navigate("/");
-          }
-        } catch (error) {
-          this._view.displayErrorMessage(
-            `Failed to log user in because of exception: ${error}`
-          );
-        } finally {
-          this._isLoading = false;
-        }
+            this.view.navigate("/");
+          }}, "log user in")  
       };
 }

@@ -1,34 +1,29 @@
 import { AuthToken, User } from "tweeter-shared";
-import {FollowService} from "../modelANDservice/service/FollowService";
-import { UserItemPresenter, UserItemView } from "./UserItemPresenter";
+import {UserItemPresenter} from "./UserItemPresenter";
+import { PAGE_SIZE, PagedItemView } from "./PagedItemPresenter";
 
-export const PAGE_SIZE = 10;
 
 export class FolloweePresenter extends UserItemPresenter{
-    private followService: FollowService;
-
-    public constructor(view: UserItemView){
+    
+    public constructor(view: PagedItemView<User>){
         super(view);
-        this.followService = new FollowService();
+    }
+
+    protected get view(): PagedItemView<User> {
+      return super.view as PagedItemView<User>;
     }
     
+
+    protected getMoreItems(authToken: AuthToken, user: User): Promise<[User[], boolean]> {
+              return this.service.loadMoreFollowees(
+                authToken,
+                  user.alias,
+                  PAGE_SIZE,
+                  this.lastItem
+              )
+          }
       
-    public async loadMoreItems (authToken: AuthToken, userAlias: string){
-        try {
-          const [newItems, hasMore] = await this.followService.loadMoreFollowees(
-            authToken,
-            userAlias,
-            PAGE_SIZE,
-            this.lastItem
-          );
-    
-          this.hasMoreItems = hasMore;
-          this.lastItem = newItems[newItems.length - 1];
-          this.view.addItems(newItems);
-        } catch (error) {
-          this.view.displayErrorMessage(
-            `Failed to load followees because of exception: ${error}`
-          );
-        }
-      };
+    protected getItemDescription(): string{
+            return "load followees";
+          }
 }

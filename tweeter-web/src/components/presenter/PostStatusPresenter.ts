@@ -3,52 +3,33 @@
 
 import { AuthToken, Status, User } from "tweeter-shared";
 import { StatusService } from "../modelANDservice/service/StatusService";
+import { Presenter, View } from "./Presenter";
 
-export interface PostStatusView{
+export interface PostStatusView extends View{
     displayErrorMessage: (message: string) => void,
     displayInfoMessage: (message: string, duration: number) => void,
     clearLastInfoMessage: () => void
 }
 
-export class PostStatusPresenter{
-    private  _view: PostStatusView;
+export class PostStatusPresenter extends Presenter<PostStatusView>{
     private statusService: StatusService;
-    private _isLoading: boolean = false;
+
     public constructor(view: PostStatusView){
-        this._view = view;
+        super(view);
         this.statusService = new StatusService();
     }
-    public get view(){
-        return this._view;
+    public get view(): PostStatusView{
+        return super.view as PostStatusView;
     }
 
-    public get isLoading(){
-        return this._isLoading;
-    }
-    public set isLoading(value: boolean){
-        this._isLoading = value;
-    }
-
-    public async submitPost (event: React.MouseEvent, post: string, currentUser: User, authToken: AuthToken) {
-        event.preventDefault();
-    
-        try {
-          this._isLoading = true;
-          this._view.displayInfoMessage("Posting status...", 0);
-    
+    public async submitPost (post: string, currentUser: User, authToken: AuthToken) {
+        this.doFailureReportingOperation(async () => {
+          this.view.displayInfoMessage("Posting status...", 0);
           const status = new Status(post, currentUser!, Date.now());
-    
           await this.statusService.postStatus(authToken!, status);
-    
-          this._view.displayInfoMessage("Status posted!", 2000);
-        } catch (error) {
-          this._view.displayErrorMessage(
-            `Failed to post the status because of exception: ${error}`
-          );
-        } finally {
-          this._view.clearLastInfoMessage();
-          this._isLoading = false;
-        }
+          this.view.displayInfoMessage("Status posted!", 2000);}, "post the status");
+         
+        this.view.clearLastInfoMessage();
       };
 
 }

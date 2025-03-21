@@ -1,10 +1,11 @@
 import { User, AuthToken } from "tweeter-shared";
 import { UserService } from "../modelANDservice/service/UserService";
 import { Buffer } from "buffer";
+import { Presenter, View } from "./Presenter";
 
 
 
-export interface RegisterView{
+export interface RegisterView extends View{
     displayErrorMessage: (message: string) => void;
     updateUserInfo: (
         currentUser: User,
@@ -16,31 +17,23 @@ export interface RegisterView{
       setImageUrl: (url: string) => void
 }
 
-export class RegisterPresenter{
-    private _view: RegisterView;
+export class RegisterPresenter extends Presenter<RegisterView>{
     private userService: UserService;
-    private _isLoading = false;
     private _userImageBytes = new Uint8Array();
     private _imageFileExtension = "";
 
     public constructor(view: RegisterView){
-        this._view = view;
+        super(view);
         this.userService = new UserService();
 
     }
     public get userImageBytes(){
       return this._userImageBytes;
     }
-    public get view(){
-        return this._view;
+    public get view() : RegisterView{
+        return super.view as RegisterView;
     }
 
-    public get isLoading(){
-        return this._isLoading;
-    }
-    public set isLoading(value: boolean){
-        this._isLoading = value;
-    }
     public get imageFileExtension(){
       return this._imageFileExtension;
     }
@@ -51,12 +44,9 @@ export class RegisterPresenter{
         alias: string,
         password: string,
         rememberMe: boolean){
-        
-        
-        try {
-          this._isLoading = true;
-    
-          const [user, authToken] = await this.userService.register(
+  
+        this.doFailureReportingOperation(async () => {
+            const [user, authToken] = await this.userService.register(
             firstName,
             lastName,
             alias,
@@ -65,15 +55,10 @@ export class RegisterPresenter{
             this.imageFileExtension
           );
     
-          this._view.updateUserInfo(user, user, authToken, rememberMe);
-          this._view.navigate("/");
-        } catch (error) {
-          this._view.displayErrorMessage(
-            `Failed to register user because of exception: ${error}`
-          );
-        } finally {
-          this._isLoading = (false);
-        }
+          this.view.updateUserInfo(user, user, authToken, rememberMe);
+          this.view.navigate("/");
+        }, "register user");
+         
       };
 
 

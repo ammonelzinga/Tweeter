@@ -14,6 +14,8 @@ const UserInfo = () => {
   const { currentUser, authToken, displayedUser, setDisplayedUser } =
     useUserInfo();
 
+  const[isLoading, setIsLoading] = useState(false);
+
   if (!displayedUser) {
     setDisplayedUser(currentUser!);
   }
@@ -65,19 +67,25 @@ const UserInfo = () => {
   const followDisplayedUser = async (
     event: React.MouseEvent
   ): Promise<void> => {
-    presenter.followDisplayedUser(event, authToken!, displayedUser!);
+    event.preventDefault();
+    setIsLoading(true);
+    presenter.followDisplayedUser(authToken!, displayedUser!);
+    setIsLoading(false);
   };
 
 
   const unfollowDisplayedUser = async (
     event: React.MouseEvent
   ): Promise<void> => {
-    presenter.unfollowDisplayedUser(event, authToken!, displayedUser!);
+    event.preventDefault();
+    setIsLoading(true);
+    presenter.unfollowDisplayedUser(authToken!, displayedUser!);
+    setIsLoading(false);
   };
 
 
   return (
-    <div className={presenter.isLoading ? "loading" : ""}>
+    <div className={isLoading ? "loading" : ""}>
       {currentUser === null || displayedUser === null || authToken === null ? (
         <></>
       ) : (
@@ -125,7 +133,7 @@ const UserInfo = () => {
                       style={{ width: "6em" }}
                       onClick={(event) => unfollowDisplayedUser(event)}
                     >
-                      {presenter.isLoading ? (
+                      {isLoading ? (
                         <span
                           className="spinner-border spinner-border-sm"
                           role="status"
@@ -143,7 +151,7 @@ const UserInfo = () => {
                       style={{ width: "6em" }}
                       onClick={(event) => followDisplayedUser(event)}
                     >
-                      {presenter.isLoading ? (
+                      {isLoading ? (
                         <span
                           className="spinner-border spinner-border-sm"
                           role="status"

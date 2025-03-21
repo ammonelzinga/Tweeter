@@ -11,12 +11,15 @@ const PostStatus = () => {
 
   const { currentUser, authToken } = useUserInfo();
   const [post, setPost] = useState("");
-  //const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const submitPost = async (event: React.MouseEvent) => {
+    setIsLoading(true);
     event.preventDefault();
-      await presenter.submitPost(event, post, currentUser!, authToken!);
+      await presenter.submitPost(post, currentUser!, authToken!);
+      setIsLoading(false);
       setPost("");
+      
   };
 
   const listener: PostStatusView = {
@@ -37,7 +40,7 @@ const PostStatus = () => {
   };
 
   return (
-    <div className={presenter.isLoading ? "loading" : ""}>
+    <div className={isLoading ? "loading" : ""}>
       <form>
         <div className="form-group mb-3">
           <textarea
@@ -60,7 +63,7 @@ const PostStatus = () => {
             style={{ width: "8em" }}
             onClick={(event) => submitPost(event)}
           >
-            {presenter.isLoading ? (
+            {isLoading ? (
               <span
                 className="spinner-border spinner-border-sm"
                 role="status"
