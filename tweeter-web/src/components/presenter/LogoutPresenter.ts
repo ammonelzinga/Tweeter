@@ -1,12 +1,9 @@
 import { AuthToken } from "tweeter-shared";
 import { UserService } from "../modelANDservice/service/UserService";
-import { Presenter, View } from "./Presenter";
+import { MessageView, Presenter, View } from "./Presenter";
 
-export interface LogoutView extends View{
-    displayInfoMessage: (message: string, duration: number, bootstrapClasses?: string) => void,
-    clearLastInfoMessage:() => void,
-    clearUserInfo:() => void,
-    displayErrorMessage: (message: string, bootstrapClasses?: string) => void
+export interface LogoutView extends MessageView{
+    clearUserInfo:() => void
 }
 
 
@@ -19,7 +16,7 @@ export class LogoutPresenter extends Presenter<LogoutView>{
 
     public async logOut (authToken: AuthToken) {
         this.view.displayInfoMessage("Logging Out...", 0);
-        
+
         this.doFailureReportingOperation(async () => {
           await this.userService.logout(authToken!);
           this.view.clearLastInfoMessage();

@@ -1,9 +1,9 @@
 import "./PostStatus.css";
 import { useState } from "react";
-import { AuthToken, Status } from "tweeter-shared";
 import useToastListener from "../toaster/ToastListenerHook";
 import useUserInfo from "../userInfo/UserInfoHook";
-import { PostStatusPresenter, PostStatusView } from "../presenter/PostStatusPresenter";
+import { PostStatusPresenter} from "../presenter/PostStatusPresenter";
+import { MessageView } from "../presenter/Presenter";
 
 const PostStatus = () => {
   const { displayErrorMessage, displayInfoMessage, clearLastInfoMessage } =
@@ -22,7 +22,7 @@ const PostStatus = () => {
       
   };
 
-  const listener: PostStatusView = {
+  const listener: MessageView = {
     displayErrorMessage: displayErrorMessage, 
     displayInfoMessage: displayInfoMessage,
     clearLastInfoMessage: clearLastInfoMessage

@@ -1,8 +1,13 @@
 
 export interface View{
-    displayErrorMessage: (message: string) => void
+    displayErrorMessage: (message: string) => void,
+    
 }
 
+export interface MessageView extends View{
+    displayInfoMessage: (message: string, duration: number, bootstrapClasses?: string) => void,
+    clearLastInfoMessage:() => void,
+}
 
 export class Presenter<V extends View> {
     private _view: V;

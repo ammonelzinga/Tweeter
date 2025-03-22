@@ -1,37 +1,30 @@
 import { User, AuthToken } from "tweeter-shared";
-import { UserService } from "../modelANDservice/service/UserService";
-import { Presenter, View } from "./Presenter";
+import { AuthenticationPresenter, AuthenticationView } from "./AuthenticationPresenter";
 
-export interface LoginView extends View{
-    updateUserInfo: (currentUser: User, displayedUser: User | null, authToken: AuthToken, remember: boolean) => void, 
-    navigate: (to: string) => void, 
-    displayErrorMessage: (message: string) => void
-}
 
-export class LoginPresenter extends Presenter<LoginView>{
-    private userService: UserService;
-
-    public constructor(view: LoginView){
-        super(view);
-        this.userService = new UserService;
-    }
+export class LoginPresenter extends AuthenticationPresenter{
 
     public get view(){
-        return super.view as LoginView;
-    }
-
-    public set view(value: LoginView){
-        this.view = value;
+        return super.view as AuthenticationView;
     }
 
     public async doLogin (alias: string, password: string, rememberMe: boolean, originalUrl?: string) {
         this.doFailureReportingOperation(async () => {
-          const [user, authToken] = await this.userService.login(alias, password);
-          this.view.updateUserInfo(user, user, authToken, rememberMe);
-          if (!!originalUrl) {
-            this.view.navigate(originalUrl);
-          } else {
-            this.view.navigate("/");
-          }}, "log user in")  
+          this.authenticateThenNavigate(alias, password, rememberMe, "", "", originalUrl);
+        }, "log user in")  
       };
+
+    protected async authenticateUser(alias: string, password: string): Promise<[User, AuthToken]> {
+        return this.userService.login(alias, password);
+    }
+
+    protected navigate(originalUrl?: string){
+      if (!!originalUrl) {
+        this.view.navigate(originalUrl);
+      } else {
+        this.view.navigate("/");
+      }
+    }
+
+    
 }

@@ -10,16 +10,18 @@ import Login from "./components/authentication/login/Login";
 import Register from "./components/authentication/register/Register";
 import MainLayout from "./components/mainLayout/MainLayout";
 import Toaster from "./components/toaster/Toaster";
-import { AuthToken, FakeData, Status } from "tweeter-shared";
-import UserItemScroller from "./components/mainLayout/UserItemScroller";
-import StatusItemScroller from "./components/mainLayout/StatusItemScroller";
+import { Status, User } from "tweeter-shared";
 import useUserInfo from "./components/userInfo/UserInfoHook";
-import { UserItemView } from "./components/presenter/UserItemPresenter";
 import { FolloweePresenter } from "./components/presenter/FolloweePresenter";
 import { FollowerPresenter } from "./components/presenter/FollowerPresenter";
 import { FeedPresenter } from "./components/presenter/FeedPresenter";
-import { StatusItemView } from "./components/presenter/StatusItemPresenter";
 import { StoryPresenter } from "./components/presenter/StoryPresenter";
+import ItemScroller, { itemProps } from "./components/mainLayout/ItemScroller";
+import { PagedItemView } from "./components/presenter/PagedItemPresenter";
+import StatusItem from "./components/statusItem/StatusItem";
+import UserItem from "./components/userItem/UserItem";
+import { StatusService } from "./components/modelANDservice/service/StatusService";
+import { FollowService } from "./components/modelANDservice/service/FollowService";
 
 const App = () => {
   const { currentUser, authToken } = useUserInfo();
@@ -54,36 +56,48 @@ const AuthenticatedRoutes = () => {
         <Route 
           path="feed" 
           element={
-          <StatusItemScroller 
+          <ItemScroller<Status, StatusService>
               key = {"feedScroller"}
-              presenterGenerator={(view: StatusItemView) => new FeedPresenter(view)}
+              presenterGenerator={(view: PagedItemView<Status>) => new FeedPresenter(view)}
+              itemComponentGenerator={(itemProp: itemProps<Status>) => {
+                const currentItem= itemProp.item;
+              return <StatusItem status={currentItem} />}}
               />
             } 
           />
         <Route 
           path="story"
           element={
-            <StatusItemScroller
+            <ItemScroller<Status, StatusService>
               key = {"storyScroller"}
-              presenterGenerator={(view: StatusItemView) => new StoryPresenter(view)}
+              presenterGenerator={(view: PagedItemView<Status>) => new StoryPresenter(view)}
+              itemComponentGenerator={(itemProp: itemProps<Status>) => {
+                const currentItem= itemProp.item;
+              return <StatusItem status={currentItem} />}}
             />
           } 
          />
         <Route
           path="followees"
           element={
-            <UserItemScroller
-              key={1}
-              presenterGenerator={(view: UserItemView) => new FolloweePresenter(view)}
+            <ItemScroller<User, FollowService>
+              key={"followeeScroller"}
+              presenterGenerator={(view: PagedItemView<User>) => new FolloweePresenter(view)}
+              itemComponentGenerator={(itemProp: itemProps<User>) => {
+                const currentItem= itemProp.item;
+              return <UserItem value={currentItem} />}}
             />
           }
         />
         <Route
           path="followers"
           element={
-            <UserItemScroller
-              key={2} 
-                presenterGenerator={(view: UserItemView) => new FollowerPresenter(view)}
+            <ItemScroller<User, FollowService>
+              key={"FollowerScroller"} 
+                presenterGenerator={(view: PagedItemView<User>) => new FollowerPresenter(view)}
+                itemComponentGenerator={(itemProp: itemProps<User>) => {
+                const currentItem= itemProp.item;
+                return <UserItem value={currentItem} />}}
             />
           }
         />

@@ -1,11 +1,8 @@
 import { AuthToken, User } from "tweeter-shared";
 import { FollowService } from "../modelANDservice/service/FollowService";
-import { Presenter, View } from "./Presenter";
+import { MessageView, Presenter, View } from "./Presenter";
 
-export interface UserInfoView extends View{
-    displayErrorMessage: (message: string) => void;
-    displayInfoMessage: (message: string, duration: number, bootstrapClasses?: string) => void;
-    clearLastInfoMessage: () => void;
+export interface UserInfoView extends MessageView{
     setDisplayedUser: (user: User) => void
 }
 
@@ -104,13 +101,9 @@ export class UserInfoPresenter extends Presenter<UserInfoView>{
       ): Promise<void> {
         this.doFailureReportingOperation(async () => {
           this.view.displayInfoMessage(
-            `Unfollowing ${displayedUser!.name}...`,
-            0
-          );
+            `Unfollowing ${displayedUser!.name}...`,0);
     
-          const [followerCount, followeeCount] = await this.followService.unfollow(
-            authToken!,
-            displayedUser!
+          const [followerCount, followeeCount] = await this.followService.unfollow(authToken!,displayedUser!
           );
     
           this._isFollower = (false);

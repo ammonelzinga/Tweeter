@@ -1,35 +1,21 @@
 import { User, AuthToken } from "tweeter-shared";
-import { UserService } from "../modelANDservice/service/UserService";
 import { Buffer } from "buffer";
-import { Presenter, View } from "./Presenter";
+import { AuthenticationPresenter, AuthenticationView } from "./AuthenticationPresenter";
 
 
-
-export interface RegisterView extends View{
-    displayErrorMessage: (message: string) => void;
-    updateUserInfo: (
-        currentUser: User,
-        displayedUser: User | null,
-        authToken: AuthToken,
-        remember: boolean
-      ) => void, 
-      navigate: (location: string) => void,
-      setImageUrl: (url: string) => void
+export interface RegisterView extends AuthenticationView{
+    setImageUrl: (url: string) => void
 }
 
-export class RegisterPresenter extends Presenter<RegisterView>{
-    private userService: UserService;
-    private _userImageBytes = new Uint8Array();
+export class RegisterPresenter extends AuthenticationPresenter{
+    private _userImageBytes : Uint8Array;
     private _imageFileExtension = "";
 
     public constructor(view: RegisterView){
         super(view);
-        this.userService = new UserService();
+        this._userImageBytes = new Uint8Array();
+    }
 
-    }
-    public get userImageBytes(){
-      return this._userImageBytes;
-    }
     public get view() : RegisterView{
         return super.view as RegisterView;
     }
@@ -38,28 +24,21 @@ export class RegisterPresenter extends Presenter<RegisterView>{
       return this._imageFileExtension;
     }
 
-    public async doRegister (
-        firstName: string,
-        lastName: string,
-        alias: string,
-        password: string,
-        rememberMe: boolean){
+    public async doRegister (firstName: string, lastName: string, alias: string, password: string, rememberMe: boolean){
   
         this.doFailureReportingOperation(async () => {
-            const [user, authToken] = await this.userService.register(
-            firstName,
-            lastName,
-            alias,
-            password,
-            this._userImageBytes,
-            this.imageFileExtension
-          );
-    
-          this.view.updateUserInfo(user, user, authToken, rememberMe);
-          this.view.navigate("/");
+            this.authenticateThenNavigate(alias, password, rememberMe, firstName, lastName, "");
         }, "register user");
          
       };
+    
+    protected async authenticateUser(alias: string, password: string, firstName: string, lastName: string): Promise<[User, AuthToken]> {
+        return this.userService.register(firstName, lastName, alias, password, this._userImageBytes, this.imageFileExtension);
+    }
+
+    protected navigate(){
+      this.view.navigate("/");
+    }
 
 
       public handleImageFile (file: File | undefined) {
@@ -74,7 +53,7 @@ export class RegisterPresenter extends Presenter<RegisterView>{
               const imageStringBase64BufferContents =
                 imageStringBase64.split("base64,")[1];
       
-              const bytes: Uint8Array<ArrayBuffer> = Buffer.from(
+              const bytes: Uint8Array = Buffer.from(
                 imageStringBase64BufferContents,
                 "base64"
               );

@@ -40,7 +40,7 @@ export abstract class PagedItemPresenter<T, U> extends Presenter<PagedItemView<T
         this._lastItem = item;
     }
 
-    protected reset(){
+    public reset(){
         this.lastItem = (null);
         this.hasMoreItems = (true);
     }
