@@ -24,3 +24,18 @@ Rebuild either module of the project (tweeter-shared or tweeter-web) by running 
 ## Running the Project
 
 Run the project by running 'npm start' from within the 'tweeter-web' folder.
+
+
+API Method Reponse Header Name: 
+
+Access-Control-Allow-Origin
+
+
+^\[Bad Request\].*
+
+method.response.header.Access-Control-Allow-Origin
+
+	
+'*'
+
+^\[Server Error\].*

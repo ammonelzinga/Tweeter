@@ -6,8 +6,7 @@ import { PAGE_SIZE,} from "./PagedItemPresenter";
 export class FolloweePresenter extends UserItemPresenter{
 
     protected getMoreItems(authToken: AuthToken, user: User): Promise<[User[], boolean]> {
-              return this.service.loadMoreFollowees(authToken,user.alias,PAGE_SIZE,this.lastItem
-              )
+              return this.service.loadMoreFollowees(authToken,user.alias,PAGE_SIZE,this.lastItem)
           }
       
     protected getItemDescription(): string{
