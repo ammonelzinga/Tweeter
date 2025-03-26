@@ -169,6 +169,7 @@ export class FakeData {
   ): [User[], boolean] {
     let userIndex = 0;
 
+    console.log("FakeData received this last item: ", lastUser?.firstName, "\n");
     // Find the index of the first user to be returned
     if (lastUser != null) {
       for (let i = 0; i < this.fakeUsers.length; i++) {
@@ -183,9 +184,9 @@ export class FakeData {
     let count = 0;
     while (userIndex < this.fakeUsers.length && count < limit) {
       const currentUser = this.fakeUsers[userIndex];
-
       if (omit == null || currentUser.alias !== omit) {
         fakeUsersToReturn.push(currentUser);
+        console.log("Adding", currentUser.firstName, "to fakelist\n");
         count++;
       }
 
