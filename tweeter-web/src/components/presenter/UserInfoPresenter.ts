@@ -89,6 +89,8 @@ export class UserInfoPresenter extends Presenter<UserInfoView>{
           this._isFollower = (true);
           this._followerCount =(followerCount);
           this._followeeCount = (followeeCount);
+
+          this.view.displayInfoMessage(`Following ${displayedUser!.name}...`, 2000);
         }, "follow user");
 
         this.view.clearLastInfoMessage();
@@ -103,12 +105,15 @@ export class UserInfoPresenter extends Presenter<UserInfoView>{
           this.view.displayInfoMessage(
             `Unfollowing ${displayedUser!.name}...`,0);
     
-          const [followerCount, followeeCount] = await this.followService.unfollow(authToken!,displayedUser!
-          );
+          const [followerCount, followeeCount] = await this.followService.unfollow(authToken!,displayedUser!);
     
           this._isFollower = (false);
           this._followerCount = (followerCount);
           this._followeeCount = (followeeCount);
+
+          this.view.displayInfoMessage(
+            `Unfollowing ${displayedUser!.name}...`,2000);
+
         }, "unfollow user");
           
         this.view.clearLastInfoMessage();
